@@ -28,7 +28,7 @@ if (!SUPERADMIN_PASSWORD) {
 }
 
 // ---------- Almacenamiento ----------
-const DATA_DIR = path.join(__dirname, 'data');
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 const PHOTO_DIR = path.join(DATA_DIR, 'fotos');
 fs.mkdirSync(PHOTO_DIR, { recursive: true });
 
@@ -141,16 +141,20 @@ function empresaSesion(req) {
   return id ? db.prepare('SELECT * FROM empresas WHERE id = ?').get(id) : undefined;
 }
 
-function iniciarSesion(res, empresaId) {
+// Cookie con "Secure" cuando la conexión llega por HTTPS (detrás del proxy)
+function atributosCookie(req) {
+  return req.secure ? '; Secure' : '';
+}
+
+function iniciarSesion(req, res, empresaId) {
   const token = crypto.randomBytes(32).toString('hex');
   sesiones.set(token, empresaId);
-  // Agrega "; Secure" cuando la app esté en HTTPS
-  res.setHeader('Set-Cookie', `sesion=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=2592000`);
+  res.setHeader('Set-Cookie', `sesion=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=2592000${atributosCookie(req)}`);
 }
 
 function cerrarSesion(req, res) {
   sesiones.delete(leerCookie(req, 'sesion'));
-  res.setHeader('Set-Cookie', 'sesion=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0');
+  res.setHeader('Set-Cookie', `sesion=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${atributosCookie(req)}`);
 }
 
 function requiereEmpresa(req, res, next) {
@@ -194,6 +198,8 @@ const subirFoto = (req, res, next) =>
 
 // ---------- App ----------
 const app = express();
+// Detrás de un proxy HTTPS (Caddy), confía en X-Forwarded-Proto para saber si la conexión es segura
+app.set('trust proxy', 1);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -218,7 +224,7 @@ app.post('/api/empresas/registro', (req, res) => {
                            VALUES (?, ?, ?, ?, ?, 'prueba', ?, ?)`)
     .run(nombre, generarCodigo(nombre), email, hash, salt, trial.toISOString(), ahora.toISOString());
 
-  iniciarSesion(res, Number(info.lastInsertRowid));
+  iniciarSesion(req, res, Number(info.lastInsertRowid));
   res.status(201).json({ ok: true });
 });
 
@@ -227,7 +233,7 @@ app.post('/api/empresas/login', (req, res) => {
   if (!e || !claveCorrecta(String(req.body.password || ''), e)) {
     return res.status(401).json({ error: 'Correo o contraseña incorrectos' });
   }
-  iniciarSesion(res, e.id);
+  iniciarSesion(req, res, e.id);
   res.json({ ok: true });
 });
 

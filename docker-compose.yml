@@ -1,0 +1,27 @@
+# Uso: DOMINIO=tudominio.pe ADMIN_PASSWORD=... SUPERADMIN_PASSWORD=... docker compose up -d --build
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      - SUPERADMIN_PASSWORD=${SUPERADMIN_PASSWORD:?Define SUPERADMIN_PASSWORD}
+      - TZ_NEGOCIO=America/Lima
+    volumes:
+      - tareo-data:/data   # base de datos y fotos: no se borran al reiniciar
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on: [app]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  tareo-data:
+  caddy-data:
+  caddy-config:

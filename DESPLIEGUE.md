@@ -34,6 +34,21 @@ Para empezar, **Culqi o Mercado Pago** son lo más simple de integrar. Ambas exi
 
 ## 4. Despliegue con HTTPS
 
+### Opción C: Docker en cualquier VPS (recomendada)
+
+En el servidor, con Docker y Docker Compose instalados:
+
+1. Apunta el DNS de tu dominio (registro `A`) a la IP del servidor.
+2. Edita `Caddyfile` y pon tu dominio.
+3. Arranca:
+
+```bash
+SUPERADMIN_PASSWORD='clave-larga-del-dueno' docker compose up -d --build
+```
+
+Caddy obtiene el certificado HTTPS automáticamente. Los datos quedan en el volumen `tareo-data`; para respaldarlos: `docker run --rm -v tareo-data:/data -v $(pwd):/backup alpine tar czf /backup/respaldo.tgz /data`.
+
+
 El celular necesita HTTPS para instalar la PWA y usar la cámara.
 
 ### Opción A: VPS con dominio (más control, más barata)
