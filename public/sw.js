@@ -1,6 +1,6 @@
 // Service worker: permite abrir la app aunque la conexión sea mala.
 // Las llamadas a /api nunca se guardan en caché: los datos siempre van al servidor.
-const CACHE = 'tareo-v3';
+const CACHE = 'tareo-v4';
 const SHELL = [
   '/',
   '/index.html',

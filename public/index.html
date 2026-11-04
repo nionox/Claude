@@ -84,6 +84,10 @@
     .foto-box img { display: none; max-width: 100%; max-height: 240px; border-radius: 10px; margin: 12px auto 0; }
     .aviso-foto { font-size: .85rem; color: var(--gris); margin: 8px 0 0; }
     .instalar { font-size: .88rem; color: var(--gris); }
+    .sello { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+    .sello span {
+      background: #f1f5f9; border-radius: 10px; padding: 8px 12px; font-size: .9rem; color: var(--texto);
+    }
     .instalar strong { color: var(--texto); }
   </style>
 </head>
@@ -118,27 +122,26 @@
     </div>
 
     <form id="form" class="card" novalidate>
-      <h1 style="font-size:1.15rem">Reporte del día</h1>
-      <p class="sub">Completa los datos y adjunta una foto como sustento.</p>
+      <h1 style="font-size:1.15rem">Registro de jornada</h1>
+      <p class="sub">Fecha y hora se registran solas al enviar. No se pueden cambiar después.</p>
 
-      <label for="fecha">Día trabajado</label>
-      <input id="fecha" type="date" required>
-
-      <label for="horas">Horas trabajadas</label>
-      <input id="horas" type="number" step="0.5" min="0.5" max="24" placeholder="Ej. 8">
-
-      <label for="actividad">¿Qué hiciste?</label>
-      <textarea id="actividad" maxlength="500" placeholder="Describe brevemente la actividad realizada"></textarea>
-
-      <label>Foto de sustento *</label>
-      <div id="foto-box" class="foto-box">
-        <input id="foto" type="file" accept="image/jpeg,image/png" capture="environment" class="oculto">
-        <button type="button" class="btn sec" id="btn-foto" style="margin-top:0">📷 Tomar o elegir foto</button>
-        <img id="preview" alt="Vista previa de la foto">
-        <p class="aviso-foto" id="aviso-foto">La foto es obligatoria para enviar el reporte.</p>
+      <div class="sello">
+        <span>📅 <strong id="sello-fecha"></strong></span>
+        <span>🕒 <strong id="sello-hora">Se registra al enviar</strong></span>
       </div>
 
-      <button id="btn-enviar" class="btn" type="submit" disabled>Enviar reporte</button>
+      <label for="punto">Punto de trabajo donde estuviste *</label>
+      <input id="punto" maxlength="120" placeholder="Ej. Obra Pucará, nivel 2">
+
+      <label>Selfie de sustento *</label>
+      <div id="foto-box" class="foto-box">
+        <input id="foto" type="file" accept="image/jpeg,image/png" capture="user" class="oculto">
+        <button type="button" class="btn sec" id="btn-foto" style="margin-top:0">🤳 Tomarme una selfie</button>
+        <img id="preview" alt="Vista previa de la selfie">
+        <p class="aviso-foto" id="aviso-foto">La selfie es obligatoria para registrar tu jornada.</p>
+      </div>
+
+      <button id="btn-enviar" class="btn" type="submit" disabled>Registrar mi jornada</button>
       <div id="msg-reporte" class="msg"></div>
     </form>
 
@@ -184,7 +187,7 @@
     $('vista-reporte').classList.remove('oculto');
     $('nombre').textContent = sesion.nombre;
     $('empresa').textContent = sesion.empresa;
-    configurarFecha();
+    mostrarFechaHoy();
     actualizarBoton();
   }
 
@@ -225,19 +228,15 @@
     mostrarIngreso();
   }
 
-  function configurarFecha() {
-    const hoy = new Date();
-    const pad = (n) => String(n).padStart(2, '0');
-    const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    const minimo = new Date(hoy);
-    minimo.setDate(minimo.getDate() - 7);
-    $('fecha').max = iso(hoy);
-    $('fecha').min = iso(minimo);
-    $('fecha').value = iso(hoy);
+  // Solo se muestra la fecha de hoy; la hora exacta la registra el servidor al enviar
+  function mostrarFechaHoy() {
+    $('sello-fecha').textContent = new Date().toLocaleDateString('es-PE', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+    });
   }
 
   function actualizarBoton() {
-    const ok = fotoLista && $('horas').value && $('actividad').value.trim().length >= 5;
+    const ok = fotoLista && $('punto').value.trim().length >= 3;
     $('btn-enviar').disabled = !ok;
   }
 
@@ -251,7 +250,7 @@
     const file = $('foto').files[0];
     if (!file) { fotoLista = false; $('preview').style.display = 'none'; actualizarBoton(); return; }
     if (file.size > 5 * 1024 * 1024) {
-      mostrar($('msg-reporte'), 'La foto supera 5 MB. Intenta con otra.', 'error');
+      mostrar($('msg-reporte'), 'La selfie supera 5 MB. Vuelve a tomarla.', 'error');
       $('foto').value = '';
       fotoLista = false;
       actualizarBoton();
@@ -261,38 +260,35 @@
     $('preview').src = URL.createObjectURL(file);
     $('preview').style.display = 'block';
     $('foto-box').classList.add('ok');
-    $('aviso-foto').textContent = 'Foto lista ✔ (puedes volver a tomarla si lo necesitas).';
+    $('aviso-foto').textContent = 'Selfie lista ✔ (puedes volver a tomarla si lo necesitas).';
     ocultarMsg($('msg-reporte'));
     actualizarBoton();
   });
 
-  ['horas', 'actividad'].forEach((id) => $(id).addEventListener('input', actualizarBoton));
+  $('punto').addEventListener('input', actualizarBoton);
 
   $('form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const datos = new FormData();
     datos.append('codigo', sesion.codigo);
     datos.append('dni', sesion.dni);
-    datos.append('fecha', $('fecha').value);
-    datos.append('horas', $('horas').value);
-    datos.append('actividad', $('actividad').value.trim());
+    datos.append('punto', $('punto').value.trim());
     datos.append('foto', $('foto').files[0]);
 
     $('btn-enviar').disabled = true;
-    $('btn-enviar').textContent = 'Enviando…';
+    $('btn-enviar').textContent = 'Registrando…';
     try {
       const data = await api('/api/trabajador/reportes', { method: 'POST', body: datos });
-      mostrar($('msg-reporte'), '✔ ' + data.mensaje, 'exito');
+      mostrar($('msg-reporte'), `✔ Jornada registrada hoy a las ${data.hora}. Ya no se puede modificar.`, 'exito');
       $('form').reset();
-      configurarFecha();
       $('preview').style.display = 'none';
       $('foto-box').classList.remove('ok');
-      $('aviso-foto').textContent = 'La foto es obligatoria para enviar el reporte.';
+      $('aviso-foto').textContent = 'La selfie es obligatoria para registrar tu jornada.';
       fotoLista = false;
     } catch (err) {
       mostrar($('msg-reporte'), err.status === 402 ? MSG_SIN_SERVICIO : err.message, err.status === 402 ? 'aviso' : 'error');
     } finally {
-      $('btn-enviar').textContent = 'Enviar reporte';
+      $('btn-enviar').textContent = 'Registrar mi jornada';
       actualizarBoton();
     }
   });

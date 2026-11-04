@@ -11,7 +11,6 @@ const SUPERADMIN_PASSWORD = process.env.SUPERADMIN_PASSWORD || '';
 const TZ = process.env.TZ_NEGOCIO || 'America/Lima';
 
 const DIAS_PRUEBA = 15;
-const DIAS_ATRAS = 7;
 const DIA_MS = 24 * 60 * 60 * 1000;
 const LIMITE_PRUEBA = 25;
 const MSG_VENCIDA = 'La prueba o la suscripción de esta empresa venció. Renueva el plan para seguir registrando. Tus datos siguen guardados.';
@@ -32,7 +31,7 @@ const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 const PHOTO_DIR = path.join(DATA_DIR, 'fotos');
 fs.mkdirSync(PHOTO_DIR, { recursive: true });
 
-const db = new DatabaseSync(path.join(DATA_DIR, 'tareo2.db'));
+const db = new DatabaseSync(path.join(DATA_DIR, 'tareo3.db'));
 db.exec(`
   CREATE TABLE IF NOT EXISTS empresas (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,27 +57,30 @@ db.exec(`
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     empresa_id  INTEGER NOT NULL REFERENCES empresas(id),
     dni         TEXT NOT NULL,
-    fecha       TEXT NOT NULL,
-    horas       REAL NOT NULL,
-    actividad   TEXT NOT NULL,
-    foto        TEXT NOT NULL,
+    fecha       TEXT NOT NULL,            -- día del registro, lo pone el servidor
+    punto       TEXT NOT NULL,            -- punto de trabajo donde estuvo
+    foto        TEXT NOT NULL,            -- selfie de sustento
     mime        TEXT NOT NULL,
-    enviado     TEXT NOT NULL,
-    UNIQUE (empresa_id, dni, fecha)
+    enviado     TEXT NOT NULL,            -- fecha y hora exactas del registro, lo pone el servidor
+    UNIQUE (empresa_id, dni, fecha)       -- un solo registro por día y trabajador
   );
+  -- Los registros no se pueden modificar ni borrar, ni siquiera desde la base de datos
+  CREATE TRIGGER IF NOT EXISTS reportes_no_editar BEFORE UPDATE ON reportes
+  BEGIN SELECT RAISE(ABORT, 'Los registros no se pueden editar'); END;
+  CREATE TRIGGER IF NOT EXISTS reportes_no_borrar BEFORE DELETE ON reportes
+  BEGIN SELECT RAISE(ABORT, 'Los registros no se pueden borrar'); END;
 `);
 
 // ---------- Utilidades ----------
 const s = (v) => String(v ?? '').trim();
 
-function hoy() {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+function horaLima(fecha) {
+  return new Intl.DateTimeFormat('es-PE', { timeZone: TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+    .format(fecha);
 }
 
-function fechaMinima() {
-  const d = new Date(hoy() + 'T00:00:00Z');
-  d.setUTCDate(d.getUTCDate() - DIAS_ATRAS);
-  return d.toISOString().slice(0, 10);
+function hoy() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 }
 
 function estadoEmpresa(e) {
@@ -247,8 +249,10 @@ app.get('/api/empresas/yo', requiereEmpresa, (req, res) => {
   const est = estadoEmpresa(e);
   const mes = hoy().slice(0, 7);
   const trabajadores = db.prepare('SELECT COUNT(*) AS n FROM trabajadores WHERE empresa_id = ?').get(e.id).n;
-  const resumen = db.prepare(`SELECT COUNT(*) AS n, COALESCE(SUM(horas), 0) AS horas
-                              FROM reportes WHERE empresa_id = ? AND fecha LIKE ?`).get(e.id, mes + '%');
+  const resumen = db.prepare(`SELECT COUNT(*) AS n FROM reportes WHERE empresa_id = ? AND fecha LIKE ?`)
+    .get(e.id, mes + '%');
+  const hoyRegistros = db.prepare(`SELECT COUNT(*) AS n FROM reportes WHERE empresa_id = ? AND fecha = ?`)
+    .get(e.id, hoy()).n;
   const limite = limiteTrabajadores(e);
 
   res.json({
@@ -263,7 +267,7 @@ app.get('/api/empresas/yo', requiereEmpresa, (req, res) => {
     trabajadores,
     limite: limite === Infinity ? null : limite,
     reportesMes: resumen.n,
-    horasMes: resumen.horas,
+    reportesHoy: hoyRegistros,
     planes: Object.entries(PLANES).map(([id, p]) => ({
       id, nombre: p.nombre, precio: p.precio, limite: p.limite === Infinity ? null : p.limite,
     })),
@@ -298,7 +302,7 @@ app.post('/api/empresas/trabajadores', requiereEmpresa, requiereVigente, (req, r
 app.get('/api/empresas/reportes', requiereEmpresa, (req, res) => {
   res.json(db.prepare(`
     SELECT r.id, r.dni, COALESCE(t.nombre, '(trabajador eliminado)') AS nombre,
-           r.fecha, r.horas, r.actividad, r.enviado
+           r.fecha, r.punto, r.enviado
     FROM reportes r
     LEFT JOIN trabajadores t ON t.empresa_id = r.empresa_id AND t.dni = r.dni
     WHERE r.empresa_id = ?
@@ -317,7 +321,7 @@ app.get('/api/empresas/excel', requiereEmpresa, async (req, res) => {
     const e = req.empresa;
     const filas = db.prepare(`
       SELECT r.id, r.dni, COALESCE(t.nombre, '(trabajador eliminado)') AS nombre,
-             r.fecha, r.horas, r.actividad, r.enviado, r.foto, r.mime
+             r.fecha, r.punto, r.enviado, r.foto, r.mime
       FROM reportes r
       LEFT JOIN trabajadores t ON t.empresa_id = r.empresa_id AND t.dni = r.dni
       WHERE r.empresa_id = ?
@@ -331,20 +335,19 @@ app.get('/api/empresas/excel', requiereEmpresa, async (req, res) => {
       { header: 'ID', key: 'id', width: 6 },
       { header: 'DNI', key: 'dni', width: 12 },
       { header: 'Nombre', key: 'nombre', width: 30 },
-      { header: 'Fecha trabajada', key: 'fecha', width: 16 },
-      { header: 'Horas', key: 'horas', width: 9 },
-      { header: 'Actividad', key: 'actividad', width: 50 },
-      { header: 'Enviado (hora Lima)', key: 'enviado', width: 22 },
-      { header: 'Foto de sustento', key: 'foto', width: 22 },
+      { header: 'Fecha', key: 'fecha', width: 14 },
+      { header: 'Hora de registro', key: 'hora', width: 18 },
+      { header: 'Punto de trabajo', key: 'punto', width: 40 },
+      { header: 'Selfie de sustento', key: 'foto', width: 22 },
     ];
     ws.getRow(1).font = { bold: true };
     ws.views = [{ state: 'frozen', ySplit: 1 }];
 
     for (const f of filas) {
       const row = ws.addRow({
-        id: f.id, dni: f.dni, nombre: f.nombre, fecha: f.fecha, horas: f.horas,
-        actividad: f.actividad,
-        enviado: new Date(f.enviado).toLocaleString('es-PE', { timeZone: TZ }),
+        id: f.id, dni: f.dni, nombre: f.nombre, fecha: f.fecha,
+        hora: horaLima(new Date(f.enviado)),
+        punto: f.punto,
       });
       row.height = 90;
       row.alignment = { vertical: 'top', wrapText: true };
@@ -361,8 +364,7 @@ app.get('/api/empresas/excel', requiereEmpresa, async (req, res) => {
     resumen.columns = [
       { header: 'DNI', key: 'dni', width: 12 },
       { header: 'Nombre', key: 'nombre', width: 30 },
-      { header: 'Días reportados', key: 'dias', width: 16 },
-      { header: 'Total horas', key: 'total', width: 14 },
+      { header: 'Días registrados', key: 'dias', width: 18 },
     ];
     resumen.getRow(1).font = { bold: true };
     const trabajadores = db.prepare('SELECT dni, nombre FROM trabajadores WHERE empresa_id = ? ORDER BY nombre').all(e.id);
@@ -372,7 +374,6 @@ app.get('/api/empresas/excel', requiereEmpresa, async (req, res) => {
         dni: t.dni,
         nombre: t.nombre,
         dias: { formula: `COUNTIF(Reportes!B:B,A${r})` },
-        total: { formula: `SUMIF(Reportes!B:B,A${r},Reportes!E:E)` },
       });
     });
 
@@ -412,9 +413,7 @@ app.post('/api/trabajador/ingreso', (req, res) => {
 app.post('/api/trabajador/reportes', subirFoto, (req, res) => {
   const codigo = s(req.body.codigo).toLowerCase();
   const dni = s(req.body.dni);
-  const fecha = s(req.body.fecha);
-  const horas = Number(req.body.horas);
-  const actividad = s(req.body.actividad);
+  const punto = s(req.body.punto);
 
   const r = buscarTrabajador(codigo, dni);
   if (r.error) { borrarArchivo(req.file); return res.status(r.status).json({ error: r.error }); }
@@ -422,29 +421,25 @@ app.post('/api/trabajador/reportes', subirFoto, (req, res) => {
     borrarArchivo(req.file);
     return res.status(402).json({ error: 'Esta empresa no tiene el servicio activo. Avisa a tu supervisor.' });
   }
-  if (!req.file) return res.status(400).json({ error: 'La foto es obligatoria (JPG o PNG)' });
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha) || fecha > hoy() || fecha < fechaMinima()) {
+  if (!req.file) return res.status(400).json({ error: 'La selfie es obligatoria (JPG o PNG)' });
+  if (punto.length < 3 || punto.length > 120) {
     borrarArchivo(req.file);
-    return res.status(400).json({ error: `La fecha debe ser hoy o hasta ${DIAS_ATRAS} días atrás` });
+    return res.status(400).json({ error: 'Escribe el punto de trabajo donde estuviste (entre 3 y 120 caracteres)' });
   }
-  if (!(horas > 0 && horas <= 24)) {
-    borrarArchivo(req.file);
-    return res.status(400).json({ error: 'Las horas deben estar entre 0 y 24' });
-  }
-  if (actividad.length < 5 || actividad.length > 500) {
-    borrarArchivo(req.file);
-    return res.status(400).json({ error: 'Describe la actividad realizada (entre 5 y 500 caracteres)' });
-  }
+
+  // Día y hora los pone el servidor, nunca el celular
+  const ahora = new Date();
+  const fecha = hoy();
   if (db.prepare('SELECT 1 FROM reportes WHERE empresa_id = ? AND dni = ? AND fecha = ?').get(r.empresa.id, dni, fecha)) {
     borrarArchivo(req.file);
-    return res.status(409).json({ error: 'Ya enviaste un reporte para esa fecha' });
+    return res.status(409).json({ error: 'Ya registraste tu jornada de hoy' });
   }
 
-  db.prepare(`INSERT INTO reportes (empresa_id, dni, fecha, horas, actividad, foto, mime, enviado)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
-    .run(r.empresa.id, dni, fecha, horas, actividad, req.file.filename, req.file.mimetype, new Date().toISOString());
+  db.prepare(`INSERT INTO reportes (empresa_id, dni, fecha, punto, foto, mime, enviado)
+              VALUES (?, ?, ?, ?, ?, ?, ?)`)
+    .run(r.empresa.id, dni, fecha, punto, req.file.filename, req.file.mimetype, ahora.toISOString());
 
-  res.status(201).json({ ok: true, mensaje: 'Reporte enviado correctamente' });
+  res.status(201).json({ ok: true, mensaje: 'Registro guardado', fecha, hora: horaLima(ahora) });
 });
 
 // ===== Superadministrador: activar planes tras confirmar un pago =====

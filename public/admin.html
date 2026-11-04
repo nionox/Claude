@@ -185,14 +185,14 @@
           <span id="m-limite">de 25 disponibles</span>
         </div>
         <div class="metrica">
-          <small>Reportes este mes</small>
+          <small>Registros este mes</small>
           <strong id="m-reportes">0</strong>
-          <span>días con foto de sustento</span>
+          <span>jornadas con selfie</span>
         </div>
         <div class="metrica">
-          <small>Horas este mes</small>
-          <strong id="m-horas">0</strong>
-          <span>horas reportadas</span>
+          <small>Registros hoy</small>
+          <strong id="m-hoy">0</strong>
+          <span>jornadas registradas hoy</span>
         </div>
       </div>
 
@@ -249,14 +249,14 @@
         <div class="cabecera-tabla">
           <div>
             <h2>Reportes recibidos</h2>
-            <p class="sub" style="margin:0">Toca una foto para verla completa.</p>
+            <p class="sub" style="margin:0">Fecha y hora registradas automáticamente. Son de solo lectura. Toca una selfie para verla completa.</p>
           </div>
           <button class="btn oscuro" id="btn-excel">⬇ Descargar Excel</button>
         </div>
         <div class="tabla-wrap">
           <table>
             <thead>
-              <tr><th>Foto</th><th>Día trabajado</th><th>Trabajador</th><th>Horas</th><th>Actividad</th><th>Enviado</th></tr>
+              <tr><th>Selfie</th><th>Fecha</th><th>Hora de registro</th><th>Trabajador</th><th>Punto de trabajo</th></tr>
             </thead>
             <tbody id="tabla-reportes"></tbody>
           </table>
@@ -273,7 +273,6 @@
   const $ = (id) => document.getElementById(id);
   const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const fechaCorta = (f) => new Date(f + 'T12:00:00').toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' });
-  const fechaHora = (f) => new Date(f).toLocaleString('es-PE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
   const soles = (n) => 'S/ ' + n;
 
   async function api(url, opciones = {}) {
@@ -403,7 +402,7 @@
       $('m-limite').textContent = y.limite ? `de ${y.limite} disponibles` : 'ilimitados';
       $('badge-trabajadores').textContent = y.limite ? `${trabajadores.length} / ${y.limite}` : `${trabajadores.length} registrados`;
       $('m-reportes').textContent = y.reportesMes;
-      $('m-horas').textContent = Number(y.horasMes).toLocaleString('es-PE', { maximumFractionDigits: 1 });
+      $('m-hoy').textContent = y.reportesHoy;
 
       // Bloqueo de registro si la prueba venció
       const bloqueado = y.estado === 'vencida';
@@ -418,12 +417,11 @@
       $('vacio-reportes').classList.toggle('oculto', reportes.length > 0);
       $('tabla-reportes').innerHTML = reportes.map((r) => `
         <tr>
-          <td><img class="thumb" src="/api/empresas/foto/${r.id}" data-id="${r.id}" alt="Foto"></td>
+          <td><img class="thumb" src="/api/empresas/foto/${r.id}" data-id="${r.id}" alt="Selfie"></td>
           <td>${esc(fechaCorta(r.fecha))}</td>
+          <td>${esc(new Date(r.enviado).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }))}</td>
           <td><strong>${esc(r.nombre)}</strong><br><small style="color:var(--gris)">${esc(r.dni)}</small></td>
-          <td>${esc(r.horas)}</td>
-          <td class="act">${esc(r.actividad)}</td>
-          <td>${esc(fechaHora(r.enviado))}</td>
+          <td class="act">${esc(r.punto)}</td>
         </tr>`).join('');
     } catch (err) {
       if (!/expiró/.test(err.message)) alert(err.message);
