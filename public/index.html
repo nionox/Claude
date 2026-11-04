@@ -4,6 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Reporte de jornada</title>
+  <meta name="theme-color" content="#1d4ed8">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Jornada">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <style>
     :root { --azul: #1d4ed8; --verde: #15803d; --rojo: #b91c1c; --gris: #64748b; --borde: #cbd5e1; }
     * { box-sizing: border-box; }
@@ -41,6 +49,12 @@
     <input id="dni" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="8 dígitos">
     <button id="btn-entrar" class="btn">Ingresar</button>
     <div id="msg-login" class="msg"></div>
+  </section>
+
+  <section class="card" style="margin-top:12px;font-size:.9rem;color:var(--gris)">
+    <strong style="color:#0f172a">Instalar en tu celular</strong><br>
+    <b>Android (Chrome):</b> menú ⋮ → "Agregar a pantalla de inicio".<br>
+    <b>iPhone (Safari):</b> botón Compartir □↑ → "Agregar a pantalla de inicio".
   </section>
 
   <!-- Paso 2: reporte -->
@@ -113,7 +127,7 @@
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       trabajador = data;
-      sessionStorage.setItem('dni', data.dni);
+      try { localStorage.setItem('dni', data.dni); } catch {}
       mostrarReporte();
     } catch (err) {
       mostrar($('msg-login'), err.message || 'No se pudo ingresar', 'error');
@@ -131,7 +145,7 @@
   }
 
   function salir() {
-    sessionStorage.removeItem('dni');
+    try { localStorage.removeItem('dni'); } catch {}
     location.reload();
   }
 
@@ -191,11 +205,16 @@
     }
   });
 
-  // Mantener la sesión si el trabajador ya había ingresado
-  const dniGuardado = sessionStorage.getItem('dni');
+  // Mantener la sesión en el celular (localStorage) aunque se cierre la app
+  const dniGuardado = (() => { try { return localStorage.getItem('dni'); } catch { return null; } })();
   if (dniGuardado) {
     $('dni').value = dniGuardado;
     ingresar();
+  }
+
+  // Registrar el service worker (permite abrir la app sin conexión estable)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
   }
 </script>
 </body>
