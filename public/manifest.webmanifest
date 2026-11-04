@@ -1,6 +1,6 @@
 {
-  "name": "Reporte de jornada",
-  "short_name": "Jornada",
+  "name": "Reporte de jornada ECOSEM",
+  "short_name": "ECOSEM",
   "description": "Reporta tu jornada con foto de sustento",
   "start_url": "/",
   "scope": "/",
