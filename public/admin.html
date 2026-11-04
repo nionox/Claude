@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel de tareo</title>
+  <style>
+    :root { --azul: #1d4ed8; --verde: #15803d; --rojo: #b91c1c; --gris: #64748b; --borde: #cbd5e1; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #f1f5f9; color: #0f172a; }
+    header { background: #0f172a; color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    header h1 { font-size: 1.1rem; margin: 0; }
+    main { padding: 16px; max-width: 1200px; margin: 0 auto; }
+    .card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+    h2 { font-size: 1rem; margin: 0 0 12px; }
+    input { font: inherit; padding: 10px; border: 1px solid var(--borde); border-radius: 8px; width: 100%; }
+    .fila { display: grid; grid-template-columns: 1fr 2fr auto; gap: 8px; align-items: end; }
+    .btn { font: inherit; font-weight: 600; padding: 10px 14px; border: 0; border-radius: 8px; background: var(--azul); color: #fff; cursor: pointer; white-space: nowrap; }
+    .btn.sec { background: #e2e8f0; color: #0f172a; }
+    .btn.verde { background: var(--verde); }
+    .btn.gris { background: #334155; }
+    .msg { margin-top: 10px; font-size: .9rem; }
+    .msg.error { color: var(--rojo); }
+    .msg.exito { color: var(--verde); }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+    th { background: #f8fafc; white-space: nowrap; }
+    td.act { max-width: 320px; }
+    img.thumb { width: 90px; height: 70px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid var(--borde); }
+    .vacio { color: var(--gris); padding: 16px 0; }
+    .login { max-width: 360px; margin: 60px auto; }
+    .hidden { display: none !important; }
+    @media (max-width: 640px) { .fila { grid-template-columns: 1fr; } }
+    /* Visor de foto a pantalla completa */
+    #visor { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+    #visor.abierto { display: flex; }
+    #visor img { max-width: 100%; max-height: 90vh; border-radius: 8px; }
+  </style>
+</head>
+<body>
+
+<!-- Inicio de sesión del administrador -->
+<section id="login" class="login hidden">
+  <div class="card">
+    <h2>Acceso del administrador</h2>
+    <input id="clave" type="password" placeholder="Clave de administrador" autocomplete="current-password">
+    <p><button class="btn" id="btn-login" style="width:100%;margin-top:12px">Ingresar</button></p>
+    <div id="msg-login" class="msg"></div>
+  </div>
+</section>
+
+<!-- Panel -->
+<div id="panel" class="hidden">
+  <header>
+    <h1>Panel de tareo</h1>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn verde" id="btn-excel">⬇ Descargar Excel</button>
+      <button class="btn gris" id="btn-actualizar">Actualizar</button>
+      <button class="btn gris" id="btn-salir">Salir</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Registrar trabajador</h2>
+      <form id="form-trabajador" class="fila">
+        <input id="t-dni" inputmode="numeric" maxlength="8" placeholder="DNI (8 dígitos)">
+        <input id="t-nombre" placeholder="Nombre completo">
+        <button class="btn" type="submit">Agregar</button>
+      </form>
+      <div id="msg-trabajador" class="msg"></div>
+    </section>
+
+    <section class="card">
+      <h2>Trabajadores registrados <span id="total-trabajadores" style="color:var(--gris);font-weight:400"></span></h2>
+      <div class="scroll"><table><thead><tr><th>DNI</th><th>Nombre</th></tr></thead><tbody id="tabla-trabajadores"></tbody></table></div>
+    </section>
+
+    <section class="card">
+      <h2>Reportes recibidos <span id="total-reportes" style="color:var(--gris);font-weight:400"></span></h2>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Foto</th><th>Fecha trabajada</th><th>Trabajador</th><th>Horas</th><th>Actividad</th><th>Enviado</th></tr></thead>
+          <tbody id="tabla-reportes"></tbody>
+        </table>
+      </div>
+      <p id="vacio-reportes" class="vacio hidden">Aún no hay reportes.</p>
+    </section>
+  </main>
+</div>
+
+<div id="visor" onclick="this.classList.remove('abierto')"><img alt="Foto de sustento"></div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  async function api(url, opciones = {}) {
+    const res = await fetch(url, {
+      ...opciones,
+      headers: opciones.body ? { 'Content-Type': 'application/json' } : {},
+      body: opciones.body ? JSON.stringify(opciones.body) : undefined,
+    });
+    if (res.status === 401) { mostrarLogin(); throw new Error('Sesión expirada, ingresa de nuevo'); }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Error inesperado');
+    return data;
+  }
+
+  function mostrarLogin() {
+    $('panel').classList.add('hidden');
+    $('login').classList.remove('hidden');
+  }
+
+  function mostrarPanel() {
+    $('login').classList.add('hidden');
+    $('panel').classList.remove('hidden');
+    cargarTodo();
+  }
+
+  async function login() {
+    try {
+      await api('/api/admin/login', { method: 'POST', body: { password: $('clave').value } });
+      $('clave').value = '';
+      mostrarPanel();
+    } catch (err) {
+      $('msg-login').textContent = err.message;
+      $('msg-login').className = 'msg error';
+    }
+  }
+
+  async function cargarTodo() {
+    try {
+      const [trabajadores, reportes] = await Promise.all([
+        api('/api/admin/trabajadores'),
+        api('/api/admin/reportes'),
+      ]);
+
+      $('total-trabajadores').textContent = `(${trabajadores.length})`;
+      $('tabla-trabajadores').innerHTML = trabajadores
+        .map((t) => `<tr><td>${esc(t.dni)}</td><td>${esc(t.nombre)}</td></tr>`).join('') ||
+        '<tr><td colspan="2" class="vacio">Sin trabajadores. Agrega el primero arriba.</td></tr>';
+
+      $('total-reportes').textContent = `(${reportes.length})`;
+      $('vacio-reportes').classList.toggle('hidden', reportes.length > 0);
+      $('tabla-reportes').innerHTML = reportes.map((r) => `
+        <tr>
+          <td><img class="thumb" src="/api/admin/foto/${r.id}" data-id="${r.id}" alt="Foto"></td>
+          <td>${esc(r.fecha)}</td>
+          <td>${esc(r.nombre)}<br><small style="color:var(--gris)">${esc(r.dni)}</small></td>
+          <td>${esc(r.horas)}</td>
+          <td class="act">${esc(r.actividad)}</td>
+          <td>${new Date(r.enviado).toLocaleString('es-PE')}</td>
+        </tr>`).join('');
+    } catch (err) {
+      if (err.message !== 'Sesión expirada, ingresa de nuevo') alert(err.message);
+    }
+  }
+
+  async function agregarTrabajador(e) {
+    e.preventDefault();
+    try {
+      await api('/api/admin/trabajadores', {
+        method: 'POST',
+        body: { dni: $('t-dni').value.trim(), nombre: $('t-nombre').value.trim() },
+      });
+      $('msg-trabajador').textContent = 'Trabajador registrado';
+      $('msg-trabajador').className = 'msg exito';
+      $('t-dni').value = '';
+      $('t-nombre').value = '';
+      cargarTodo();
+    } catch (err) {
+      $('msg-trabajador').textContent = err.message;
+      $('msg-trabajador').className = 'msg error';
+    }
+  }
+
+  async function salir() {
+    await fetch('/api/admin/logout', { method: 'POST' });
+    mostrarLogin();
+  }
+
+  $('btn-login').addEventListener('click', login);
+  $('clave').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
+  $('form-trabajador').addEventListener('submit', agregarTrabajador);
+  $('btn-actualizar').addEventListener('click', cargarTodo);
+  $('btn-salir').addEventListener('click', salir);
+  $('btn-excel').addEventListener('click', () => { location.href = '/api/admin/excel'; });
+
+  // Clic en una miniatura: ver la foto completa
+  $('tabla-reportes').addEventListener('click', (e) => {
+    const img = e.target.closest('img.thumb');
+    if (!img) return;
+    $('visor').querySelector('img').src = `/api/admin/foto/${img.dataset.id}`;
+    $('visor').classList.add('abierto');
+  });
+
+  // Al abrir la página: ¿ya hay sesión de administrador?
+  fetch('/api/admin/sesion').then((r) => r.json()).then((d) => (d.autenticado ? mostrarPanel() : mostrarLogin()));
+</script>
+</body>
+</html>

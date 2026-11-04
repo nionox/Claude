@@ -1,0 +1,18 @@
+{
+  "name": "tareo-digital",
+  "version": "0.1.0",
+  "description": "Tareo digital: los trabajadores reportan su jornada con foto y el administrador descarga un Excel",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "express": "^4.22.3",
+    "multer": "^2.5.0"
+  }
+}
