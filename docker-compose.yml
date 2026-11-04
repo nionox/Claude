@@ -1,4 +1,4 @@
-# Uso: DOMINIO=tudominio.pe ADMIN_PASSWORD=... SUPERADMIN_PASSWORD=... docker compose up -d --build
+# Uso: SUPERADMIN_PASSWORD=... docker compose up -d --build
 services:
   app:
     build: .

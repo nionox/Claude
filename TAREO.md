@@ -3,6 +3,14 @@
 Los trabajadores registran su jornada desde el celular con una foto obligatoria como sustento.
 El administrador recibe todo en un panel y descarga un Excel con las fotos incrustadas.
 
+## Prueba rápida (Windows)
+
+1. Descomprime el zip y haz doble clic en `iniciar-windows.bat`.
+2. En tu computadora abre `http://localhost:3000/admin.html` y crea una cuenta de empresa (15 días de prueba).
+3. En el panel, agrega trabajadores con su DNI y copia el "Enlace para tus trabajadores".
+4. En el celular (misma Wi-Fi), abre el enlace usando la IP de tu computadora en lugar de `localhost`, por ejemplo `http://192.168.1.20:3000/?e=tu-codigo`.
+5. El trabajador escribe su DNI, indica el punto de trabajo, se toma una selfie y registra su jornada. Ese registro no se puede editar.
+
 ## Requisitos
 
 - Node.js 22.13 o superior
