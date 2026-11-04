@@ -1,6 +1,6 @@
 // Service worker: permite abrir la app aunque la conexión sea mala.
 // Las llamadas a /api nunca se guardan en caché: los datos siempre van al servidor.
-const CACHE = 'tareo-v2';
+const CACHE = 'tareo-v3';
 const SHELL = [
   '/',
   '/index.html',
@@ -9,6 +9,7 @@ const SHELL = [
   '/icons/icon-512.png',
   '/icons/apple-touch-icon.png',
   '/logo.png',
+  '/admin.html',
 ];
 
 self.addEventListener('install', (event) => {

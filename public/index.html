@@ -2,105 +2,230 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Reporte de jornada</title>
-  <meta name="theme-color" content="#1d4ed8">
+  <meta name="theme-color" content="#0b3d20">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Jornada">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <style>
-    :root { --azul: #1d4ed8; --verde: #15803d; --rojo: #b91c1c; --gris: #64748b; --borde: #cbd5e1; }
+    :root {
+      --verde: #15803d;
+      --verde-osc: #0b3d20;
+      --verde-claro: #dcfce7;
+      --fondo: #eef6f0;
+      --texto: #0f172a;
+      --gris: #64748b;
+      --borde: #d6e3da;
+      --rojo: #b91c1c;
+      --rojo-claro: #fef2f2;
+      --radio: 16px;
+    }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #f1f5f9; color: #0f172a; }
-    main { max-width: 480px; margin: 0 auto; padding: 16px; }
-    h1 { font-size: 1.4rem; margin: 8px 0 4px; }
-    .sub { color: var(--gris); margin: 0 0 20px; }
-    .card { background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-    label { display: block; font-weight: 600; margin: 14px 0 6px; }
-    input, textarea { width: 100%; font: inherit; padding: 12px; border: 1px solid var(--borde); border-radius: 8px; background: #fff; }
+    html, body { margin: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: var(--texto);
+      min-height: 100vh;
+      background: linear-gradient(180deg, var(--verde-osc) 0, var(--verde) 260px, var(--fondo) 260px);
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 480px; margin: 0 auto; padding: 24px 16px calc(32px + env(safe-area-inset-bottom)); }
+    .marca { text-align: center; color: #fff; }
+    .marca img {
+      width: 150px; max-width: 60%; background: #fff; border-radius: 20px;
+      padding: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    .marca p { margin: 14px 0 0; font-size: .95rem; opacity: .9; }
+    .card {
+      background: #fff; border-radius: var(--radio); padding: 20px;
+      box-shadow: 0 6px 24px rgba(15,23,42,.08); margin-top: 18px;
+    }
+    h1 { font-size: 1.35rem; margin: 0 0 4px; }
+    h2 { font-size: 1.1rem; margin: 2px 0 0; }
+    .sub { color: var(--gris); margin: 0 0 16px; font-size: .95rem; }
+    label { display: block; font-weight: 600; font-size: .9rem; margin: 14px 0 6px; }
+    input, textarea {
+      width: 100%; font: inherit; font-size: 16px; padding: 13px 14px;
+      border: 1.5px solid var(--borde); border-radius: 12px; background: #fff; color: var(--texto);
+    }
+    input:focus, textarea:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 4px rgba(21,128,61,.15); }
     textarea { min-height: 96px; resize: vertical; }
-    .btn { width: 100%; margin-top: 18px; padding: 14px; font: inherit; font-weight: 700; color: #fff; background: var(--azul); border: 0; border-radius: 10px; cursor: pointer; }
-    .btn:disabled { background: #94a3b8; cursor: not-allowed; }
-    .btn.sec { background: #e2e8f0; color: #0f172a; }
-    .foto-box { border: 2px dashed var(--borde); border-radius: 10px; padding: 14px; text-align: center; background: #f8fafc; }
-    .foto-box.ok { border-color: var(--verde); background: #f0fdf4; }
-    .foto-box img { max-width: 100%; max-height: 240px; border-radius: 8px; margin-top: 10px; display: none; }
-    .aviso { font-size: .85rem; color: var(--gris); margin-top: 6px; }
-    .msg { margin-top: 14px; padding: 12px; border-radius: 8px; display: none; }
-    .msg.error { display: block; background: #fef2f2; color: var(--rojo); }
-    .msg.exito { display: block; background: #f0fdf4; color: var(--verde); }
-    .hidden { display: none; }
-    .saludo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .link { background: none; border: 0; color: var(--azul); font: inherit; cursor: pointer; padding: 0; }
+    .btn {
+      width: 100%; margin-top: 18px; padding: 15px; font: inherit; font-weight: 700; font-size: 1rem;
+      color: #fff; background: var(--verde); border: 0; border-radius: 14px; cursor: pointer;
+      box-shadow: 0 6px 16px rgba(21,128,61,.3);
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn:disabled { background: #94a3b8; box-shadow: none; cursor: not-allowed; }
+    .btn.sec { background: var(--verde-claro); color: var(--verde-osc); box-shadow: none; }
+    .btn.sec:disabled { background: #e2e8f0; color: var(--gris); }
+    .link { background: none; border: 0; color: var(--verde); font: inherit; font-weight: 600; cursor: pointer; padding: 6px; }
+    .ayuda { color: var(--gris); font-size: .85rem; margin: 14px 0 0; text-align: center; }
+    .msg { margin-top: 14px; padding: 12px 14px; border-radius: 12px; font-size: .95rem; display: none; }
+    .msg.error { display: block; background: var(--rojo-claro); color: var(--rojo); }
+    .msg.exito { display: block; background: var(--verde-claro); color: var(--verde-osc); }
+    .msg.aviso { display: block; background: #fff7ed; color: #9a3412; }
+    .oculto { display: none !important; }
+    .bienvenida { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .chip {
+      display: inline-block; font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+      background: var(--verde-claro); color: var(--verde-osc); padding: 4px 10px; border-radius: 999px; margin-bottom: 6px;
+    }
+    .foto-box {
+      border: 2px dashed #b7cfc0; border-radius: 14px; padding: 16px; text-align: center; background: #f7fbf8;
+    }
+    .foto-box.ok { border-color: var(--verde); background: var(--verde-claro); }
+    .foto-box img { display: none; max-width: 100%; max-height: 240px; border-radius: 10px; margin: 12px auto 0; }
+    .aviso-foto { font-size: .85rem; color: var(--gris); margin: 8px 0 0; }
+    .instalar { font-size: .88rem; color: var(--gris); }
+    .instalar strong { color: var(--texto); }
   </style>
 </head>
 <body>
-<main>
-  <img src="/logo.png" alt="ECOSEM Pucará-Morococha" style="display:block;width:100%;max-width:260px;height:auto;margin:4px auto 12px">
-  <h1>Reporte de jornada</h1>
-  <p class="sub">Registra el día que trabajaste y adjunta una foto como sustento.</p>
+<main class="wrap">
+  <header class="marca">
+    <img src="/logo.png" alt="ECOSEM Pucará-Morococha">
+    <p>Reporta tu jornada con foto de sustento</p>
+  </header>
 
-  <!-- Paso 1: identificación -->
-  <section id="paso-login" class="card">
+  <!-- Ingreso -->
+  <section id="vista-ingreso" class="card">
+    <h1>Hola 👋</h1>
+    <p class="sub">Ingresa con el código de tu empresa y tu DNI.</p>
+    <label for="codigo">Código de empresa</label>
+    <input id="codigo" autocapitalize="off" autocomplete="off" placeholder="ej. ecosem-123">
     <label for="dni">Tu DNI</label>
     <input id="dni" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="8 dígitos">
-    <button id="btn-entrar" class="btn">Ingresar</button>
-    <div id="msg-login" class="msg"></div>
+    <button id="btn-ingresar" class="btn">Ingresar</button>
+    <div id="msg-ingreso" class="msg"></div>
+    <p class="ayuda">¿No tienes el código? Pídeselo a tu supervisor.</p>
   </section>
 
-  <section class="card" style="margin-top:12px;font-size:.9rem;color:var(--gris)">
-    <strong style="color:#0f172a">Instalar en tu celular</strong><br>
-    <b>Android (Chrome):</b> menú ⋮ → "Agregar a pantalla de inicio".<br>
-    <b>iPhone (Safari):</b> botón Compartir □↑ → "Agregar a pantalla de inicio".
-  </section>
-
-  <!-- Paso 2: reporte -->
-  <section id="paso-reporte" class="hidden">
-    <div class="saludo">
-      <strong id="nombre-trabajador"></strong>
-      <button class="link" id="btn-salir">Salir</button>
+  <!-- Reporte -->
+  <section id="vista-reporte" class="oculto">
+    <div class="card bienvenida">
+      <div>
+        <span id="empresa" class="chip"></span>
+        <h2 id="nombre"></h2>
+      </div>
+      <button id="btn-salir" class="link">Salir</button>
     </div>
 
-    <form id="form-reporte" class="card" novalidate>
+    <form id="form" class="card" novalidate>
+      <h1 style="font-size:1.15rem">Reporte del día</h1>
+      <p class="sub">Completa los datos y adjunta una foto como sustento.</p>
+
       <label for="fecha">Día trabajado</label>
       <input id="fecha" type="date" required>
 
       <label for="horas">Horas trabajadas</label>
-      <input id="horas" type="number" step="0.5" min="0.5" max="24" placeholder="Ej. 8" required>
+      <input id="horas" type="number" step="0.5" min="0.5" max="24" placeholder="Ej. 8">
 
       <label for="actividad">¿Qué hiciste?</label>
-      <textarea id="actividad" maxlength="500" placeholder="Describe brevemente la actividad realizada" required></textarea>
+      <textarea id="actividad" maxlength="500" placeholder="Describe brevemente la actividad realizada"></textarea>
 
-      <label>Foto de sustento <span style="color:var(--rojo)">*</span></label>
+      <label>Foto de sustento *</label>
       <div id="foto-box" class="foto-box">
-        <input id="foto" type="file" accept="image/jpeg,image/png" capture="environment" class="hidden">
-        <button type="button" class="btn sec" id="btn-foto">📷 Tomar o elegir foto</button>
+        <input id="foto" type="file" accept="image/jpeg,image/png" capture="environment" class="oculto">
+        <button type="button" class="btn sec" id="btn-foto" style="margin-top:0">📷 Tomar o elegir foto</button>
         <img id="preview" alt="Vista previa de la foto">
-        <p class="aviso" id="aviso-foto">La foto es obligatoria para enviar el reporte.</p>
+        <p class="aviso-foto" id="aviso-foto">La foto es obligatoria para enviar el reporte.</p>
       </div>
 
       <button id="btn-enviar" class="btn" type="submit" disabled>Enviar reporte</button>
       <div id="msg-reporte" class="msg"></div>
     </form>
+
+    <section class="card instalar">
+      <strong>Instalar en tu celular</strong><br>
+      <b>Android (Chrome):</b> menú ⋮ → "Agregar a pantalla de inicio".<br>
+      <b>iPhone (Safari):</b> botón Compartir → "Agregar a pantalla de inicio".
+    </section>
   </section>
 </main>
 
 <script>
   const $ = (id) => document.getElementById(id);
-  let trabajador = null;
-  let fotoSeleccionada = false;
+  const MSG_SIN_SERVICIO = 'Esta empresa no tiene el servicio activo. Avisa a tu supervisor.';
+  let sesion = null; // { codigo, dni, nombre, empresa }
+  let fotoLista = false;
 
-  const mostrar = (el, texto, tipo) => {
-    el.textContent = texto;
-    el.className = 'msg ' + tipo;
-  };
+  const mostrar = (el, texto, tipo) => { el.textContent = texto; el.className = 'msg ' + tipo; };
+  const ocultarMsg = (el) => { el.className = 'msg'; el.textContent = ''; };
 
-  // Fecha de hoy en la hora local del celular, y mínimo 7 días atrás
-  function configurarFechas() {
+  function leerLocal(clave) { try { return localStorage.getItem(clave); } catch { return null; } }
+  function guardarLocal(clave, valor) { try { valor ? localStorage.setItem(clave, valor) : localStorage.removeItem(clave); } catch {} }
+
+  // Enlace directo de la empresa: ?e=codigo
+  const params = new URLSearchParams(location.search);
+  if (params.get('e')) guardarLocal('codigo', params.get('e').toLowerCase());
+  $('codigo').value = leerLocal('codigo') || '';
+  $('dni').value = leerLocal('dni') || '';
+
+  async function api(url, opciones = {}) {
+    const res = await fetch(url, opciones);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const err = new Error(data.error || 'Error inesperado');
+      err.status = res.status;
+      throw err;
+    }
+    return data;
+  }
+
+  function mostrarReporte() {
+    $('vista-ingreso').classList.add('oculto');
+    $('vista-reporte').classList.remove('oculto');
+    $('nombre').textContent = sesion.nombre;
+    $('empresa').textContent = sesion.empresa;
+    configurarFecha();
+    actualizarBoton();
+  }
+
+  function mostrarIngreso() {
+    $('vista-reporte').classList.add('oculto');
+    $('vista-ingreso').classList.remove('oculto');
+  }
+
+  async function ingresar() {
+    const codigo = $('codigo').value.trim().toLowerCase();
+    const dni = $('dni').value.trim();
+    if (!codigo) return mostrar($('msg-ingreso'), 'Escribe el código de tu empresa', 'error');
+    if (!/^\d{8}$/.test(dni)) return mostrar($('msg-ingreso'), 'El DNI debe tener 8 dígitos', 'error');
+
+    $('btn-ingresar').disabled = true;
+    try {
+      const data = await api('/api/trabajador/ingreso', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codigo, dni }),
+      });
+      sesion = { ...data, codigo };
+      guardarLocal('codigo', codigo);
+      guardarLocal('dni', dni);
+      ocultarMsg($('msg-ingreso'));
+      mostrarReporte();
+    } catch (err) {
+      mostrar($('msg-ingreso'), err.message, err.status === 402 ? 'aviso' : 'error');
+    } finally {
+      $('btn-ingresar').disabled = false;
+    }
+  }
+
+  function salir() {
+    guardarLocal('dni', null);
+    sesion = null;
+    $('dni').value = '';
+    mostrarIngreso();
+  }
+
+  function configurarFecha() {
     const hoy = new Date();
     const pad = (n) => String(n).padStart(2, '0');
     const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -112,74 +237,42 @@
   }
 
   function actualizarBoton() {
-    const ok = fotoSeleccionada && $('horas').value && $('actividad').value.trim().length >= 5;
+    const ok = fotoLista && $('horas').value && $('actividad').value.trim().length >= 5;
     $('btn-enviar').disabled = !ok;
   }
 
-  async function ingresar() {
-    const dni = $('dni').value.trim();
-    $('btn-entrar').disabled = true;
-    try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dni }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      trabajador = data;
-      try { localStorage.setItem('dni', data.dni); } catch {}
-      mostrarReporte();
-    } catch (err) {
-      mostrar($('msg-login'), err.message || 'No se pudo ingresar', 'error');
-    } finally {
-      $('btn-entrar').disabled = false;
-    }
-  }
-
-  function mostrarReporte() {
-    $('paso-login').classList.add('hidden');
-    $('paso-reporte').classList.remove('hidden');
-    $('nombre-trabajador').textContent = trabajador.nombre;
-    configurarFechas();
-    actualizarBoton();
-  }
-
-  function salir() {
-    try { localStorage.removeItem('dni'); } catch {}
-    location.reload();
-  }
-
-  $('btn-entrar').addEventListener('click', ingresar);
+  $('btn-ingresar').addEventListener('click', ingresar);
   $('dni').addEventListener('keydown', (e) => { if (e.key === 'Enter') ingresar(); });
+  $('codigo').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('dni').focus(); });
   $('btn-salir').addEventListener('click', salir);
   $('btn-foto').addEventListener('click', () => $('foto').click());
 
   $('foto').addEventListener('change', () => {
     const file = $('foto').files[0];
-    if (!file) { fotoSeleccionada = false; $('preview').style.display = 'none'; actualizarBoton(); return; }
+    if (!file) { fotoLista = false; $('preview').style.display = 'none'; actualizarBoton(); return; }
     if (file.size > 5 * 1024 * 1024) {
       mostrar($('msg-reporte'), 'La foto supera 5 MB. Intenta con otra.', 'error');
       $('foto').value = '';
-      fotoSeleccionada = false;
+      fotoLista = false;
       actualizarBoton();
       return;
     }
-    fotoSeleccionada = true;
+    fotoLista = true;
     $('preview').src = URL.createObjectURL(file);
     $('preview').style.display = 'block';
     $('foto-box').classList.add('ok');
     $('aviso-foto').textContent = 'Foto lista ✔ (puedes volver a tomarla si lo necesitas).';
-    $('msg-reporte').className = 'msg';
+    ocultarMsg($('msg-reporte'));
     actualizarBoton();
   });
 
   ['horas', 'actividad'].forEach((id) => $(id).addEventListener('input', actualizarBoton));
 
-  $('form-reporte').addEventListener('submit', async (e) => {
+  $('form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const datos = new FormData();
-    datos.append('dni', trabajador.dni);
+    datos.append('codigo', sesion.codigo);
+    datos.append('dni', sesion.dni);
     datos.append('fecha', $('fecha').value);
     datos.append('horas', $('horas').value);
     datos.append('actividad', $('actividad').value.trim());
@@ -188,32 +281,29 @@
     $('btn-enviar').disabled = true;
     $('btn-enviar').textContent = 'Enviando…';
     try {
-      const res = await fetch('/api/reportes', { method: 'POST', body: datos });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'No se pudo enviar el reporte');
+      const data = await api('/api/trabajador/reportes', { method: 'POST', body: datos });
       mostrar($('msg-reporte'), '✔ ' + data.mensaje, 'exito');
-      $('form-reporte').reset();
+      $('form').reset();
+      configurarFecha();
       $('preview').style.display = 'none';
       $('foto-box').classList.remove('ok');
       $('aviso-foto').textContent = 'La foto es obligatoria para enviar el reporte.';
-      fotoSeleccionada = false;
-      configurarFechas();
+      fotoLista = false;
     } catch (err) {
-      mostrar($('msg-reporte'), err.message, 'error');
+      mostrar($('msg-reporte'), err.status === 402 ? MSG_SIN_SERVICIO : err.message, err.status === 402 ? 'aviso' : 'error');
     } finally {
       $('btn-enviar').textContent = 'Enviar reporte';
       actualizarBoton();
     }
   });
 
-  // Mantener la sesión en el celular (localStorage) aunque se cierre la app
-  const dniGuardado = (() => { try { return localStorage.getItem('dni'); } catch { return null; } })();
-  if (dniGuardado) {
-    $('dni').value = dniGuardado;
+  // Si ya había ingresado en este celular, entra directo
+  if (leerLocal('codigo') && leerLocal('dni')) {
+    $('codigo').value = leerLocal('codigo');
+    $('dni').value = leerLocal('dni');
     ingresar();
   }
 
-  // Registrar el service worker (permite abrir la app sin conexión estable)
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
   }

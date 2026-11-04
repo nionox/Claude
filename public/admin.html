@@ -3,172 +3,441 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Panel de tareo</title>
+  <title>Panel de empresa · Tareo digital</title>
+  <meta name="theme-color" content="#0b3d20">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
   <style>
-    :root { --azul: #1d4ed8; --verde: #15803d; --rojo: #b91c1c; --gris: #64748b; --borde: #cbd5e1; }
+    :root {
+      --verde: #15803d; --verde-osc: #0b3d20; --verde-claro: #dcfce7;
+      --fondo: #f3f7f4; --texto: #0f172a; --gris: #64748b; --borde: #e2e8f0;
+      --rojo: #b91c1c; --rojo-claro: #fef2f2; --ambar: #b45309; --ambar-claro: #fff7ed;
+      --radio: 16px;
+    }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #f1f5f9; color: #0f172a; }
-    header { background: #0f172a; color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-    header h1 { font-size: 1.1rem; margin: 0; }
-    main { padding: 16px; max-width: 1200px; margin: 0 auto; }
-    .card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
-    h2 { font-size: 1rem; margin: 0 0 12px; }
-    input { font: inherit; padding: 10px; border: 1px solid var(--borde); border-radius: 8px; width: 100%; }
-    .fila { display: grid; grid-template-columns: 1fr 2fr auto; gap: 8px; align-items: end; }
-    .btn { font: inherit; font-weight: 600; padding: 10px 14px; border: 0; border-radius: 8px; background: var(--azul); color: #fff; cursor: pointer; white-space: nowrap; }
-    .btn.sec { background: #e2e8f0; color: #0f172a; }
-    .btn.verde { background: var(--verde); }
-    .btn.gris { background: #334155; }
-    .msg { margin-top: 10px; font-size: .9rem; }
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--fondo); color: var(--texto); }
+    button { font: inherit; }
+    .oculto { display: none !important; }
+
+    /* Barra superior */
+    .top {
+      background: linear-gradient(90deg, var(--verde-osc), var(--verde)); color: #fff;
+      padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      box-shadow: 0 4px 16px rgba(11,61,32,.25);
+    }
+    .marca { display: flex; align-items: center; gap: 12px; }
+    .marca img { height: 42px; background: #fff; border-radius: 10px; padding: 3px; }
+    .marca strong { display: block; font-size: 1.02rem; }
+    .marca small { opacity: .85; }
+    .btn-top { background: rgba(255,255,255,.14); color: #fff; border: 1px solid rgba(255,255,255,.3); border-radius: 10px; padding: 8px 14px; cursor: pointer; font-weight: 600; }
+    .btn-top:hover { background: rgba(255,255,255,.22); }
+
+    main { max-width: 1180px; margin: 0 auto; padding: 22px 16px 48px; }
+    .grid { display: grid; gap: 16px; grid-template-columns: repeat(12, 1fr); }
+    .card { background: #fff; border-radius: var(--radio); padding: 20px; box-shadow: 0 4px 18px rgba(15,23,42,.06); grid-column: span 12; }
+    .card h2 { font-size: 1.05rem; margin: 0 0 4px; }
+    .card .sub { color: var(--gris); font-size: .9rem; margin: 0 0 14px; }
+    @media (min-width: 900px) {
+      .c-6 { grid-column: span 6; }
+      .c-4 { grid-column: span 4; }
+      .c-8 { grid-column: span 8; }
+    }
+
+    /* Banner de estado */
+    .estado { border-radius: var(--radio); padding: 18px 20px; color: #fff; grid-column: span 12; box-shadow: 0 4px 18px rgba(15,23,42,.08); }
+    .estado.prueba { background: linear-gradient(90deg, #0369a1, #0ea5e9); }
+    .estado.activa { background: linear-gradient(90deg, var(--verde-osc), var(--verde)); }
+    .estado.vencida { background: linear-gradient(90deg, #7f1d1d, #dc2626); }
+    .estado h2 { color: #fff; margin: 0 0 4px; font-size: 1.1rem; }
+    .estado p { margin: 0; opacity: .95; font-size: .92rem; }
+    .barra { height: 8px; background: rgba(255,255,255,.3); border-radius: 999px; overflow: hidden; margin-top: 12px; }
+    .barra span { display: block; height: 100%; background: #fff; border-radius: 999px; }
+
+    /* Métricas */
+    .metricas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; grid-column: span 12; }
+    .metrica { background: #fff; border-radius: var(--radio); padding: 16px; box-shadow: 0 4px 18px rgba(15,23,42,.06); }
+    .metrica small { color: var(--gris); font-weight: 600; text-transform: uppercase; font-size: .72rem; letter-spacing: .04em; }
+    .metrica strong { display: block; font-size: 1.7rem; margin-top: 4px; color: var(--verde-osc); }
+    .metrica span { color: var(--gris); font-size: .85rem; }
+
+    /* Formularios */
+    label { display: block; font-weight: 600; font-size: .85rem; margin: 10px 0 6px; }
+    input {
+      width: 100%; font: inherit; padding: 11px 12px; border: 1.5px solid var(--borde); border-radius: 10px; background: #fff;
+    }
+    input:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 4px rgba(21,128,61,.12); }
+    .btn { background: var(--verde); color: #fff; border: 0; border-radius: 10px; padding: 11px 16px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .btn:hover { filter: brightness(1.05); }
+    .btn:disabled { background: #94a3b8; cursor: not-allowed; }
+    .btn.sec { background: #eef2f5; color: var(--texto); }
+    .btn.oscuro { background: var(--verde-osc); }
+    .btn.block { width: 100%; }
+    .fila { display: grid; grid-template-columns: 1fr 2fr auto; gap: 10px; align-items: end; }
+    @media (max-width: 640px) { .fila { grid-template-columns: 1fr; } }
+    .msg { margin-top: 10px; font-size: .9rem; min-height: 1.2em; }
     .msg.error { color: var(--rojo); }
     .msg.exito { color: var(--verde); }
-    .scroll { overflow-x: auto; }
+
+    /* Enlace para trabajadores */
+    .enlace { display: flex; gap: 8px; align-items: center; }
+    .enlace input { background: var(--fondo); font-size: .9rem; }
+    .codigo { display: inline-block; background: var(--verde-claro); color: var(--verde-osc); padding: 4px 10px; border-radius: 999px; font-weight: 700; font-size: .85rem; margin-top: 8px; }
+
+    /* Planes */
+    .planes { display: grid; gap: 12px; grid-template-columns: 1fr; }
+    @media (min-width: 700px) { .planes { grid-template-columns: repeat(3, 1fr); } }
+    .plan { border: 1.5px solid var(--borde); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; }
+    .plan.destacado { border-color: var(--verde); box-shadow: 0 0 0 3px rgba(21,128,61,.12); position: relative; }
+    .plan .etiqueta { position: absolute; top: -10px; right: 12px; background: var(--verde); color: #fff; font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+    .plan h3 { margin: 0; font-size: 1rem; }
+    .precio { font-size: 1.8rem; font-weight: 800; margin: 6px 0 2px; color: var(--verde-osc); }
+    .precio small { font-size: .85rem; color: var(--gris); font-weight: 600; }
+    .plan ul { padding-left: 18px; margin: 10px 0 0; color: var(--gris); font-size: .9rem; flex: 1; }
+    .plan.actual { background: #f7fbf8; }
+    .nota { color: var(--gris); font-size: .85rem; margin: 12px 0 0; }
+
+    /* Tablas */
+    .tabla-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: .9rem; }
-    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
-    th { background: #f8fafc; white-space: nowrap; }
-    td.act { max-width: 320px; }
-    img.thumb { width: 90px; height: 70px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid var(--borde); }
-    .vacio { color: var(--gris); padding: 16px 0; }
-    .login { max-width: 360px; margin: 60px auto; }
-    .hidden { display: none !important; }
-    @media (max-width: 640px) { .fila { grid-template-columns: 1fr; } }
-    /* Visor de foto a pantalla completa */
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--borde); vertical-align: top; }
+    th { color: var(--gris); font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
+    td.act { max-width: 340px; }
+    img.thumb { width: 84px; height: 64px; object-fit: cover; border-radius: 10px; cursor: pointer; border: 1px solid var(--borde); }
+    .vacio { color: var(--gris); text-align: center; padding: 22px 0; }
+    .cabecera-tabla { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .badge { display: inline-block; font-size: .72rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--verde-claro); color: var(--verde-osc); }
+
+    /* Auth */
+    .auth { min-height: 100vh; display: grid; place-items: center; padding: 20px; background: linear-gradient(160deg, var(--verde-osc), var(--verde)); }
+    .auth-card { background: #fff; border-radius: 20px; padding: 26px; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+    .auth-card .logo { display: block; width: 130px; margin: 0 auto 12px; }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--fondo); border-radius: 12px; padding: 4px; margin: 14px 0 6px; }
+    .tabs button { border: 0; background: transparent; padding: 9px; border-radius: 9px; font-weight: 700; color: var(--gris); cursor: pointer; }
+    .tabs button.activa { background: #fff; color: var(--verde-osc); box-shadow: 0 2px 8px rgba(15,23,42,.1); }
+    .auth-card .btn { width: 100%; margin-top: 14px; padding: 13px; }
+    .ayuda { color: var(--gris); font-size: .85rem; text-align: center; margin: 12px 0 0; }
+
+    /* Visor de foto */
     #visor { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
     #visor.abierto { display: flex; }
-    #visor img { max-width: 100%; max-height: 90vh; border-radius: 8px; }
+    #visor img { max-width: 100%; max-height: 90vh; border-radius: 12px; }
   </style>
 </head>
 <body>
 
-<!-- Inicio de sesión del administrador -->
-<section id="login" class="login hidden">
-  <div class="card">
-    <h2>Acceso del administrador</h2>
-    <input id="clave" type="password" placeholder="Clave de administrador" autocomplete="current-password">
-    <p><button class="btn" id="btn-login" style="width:100%;margin-top:12px">Ingresar</button></p>
-    <div id="msg-login" class="msg"></div>
+<!-- Acceso / registro -->
+<section id="auth" class="auth oculto">
+  <div class="auth-card">
+    <img class="logo" src="/logo.png" alt="ECOSEM">
+    <div class="tabs">
+      <button id="tab-ingresar" class="activa">Ingresar</button>
+      <button id="tab-registro">Crear cuenta</button>
+    </div>
+
+    <form id="form-ingresar">
+      <label for="l-email">Correo</label>
+      <input id="l-email" type="email" autocomplete="email">
+      <label for="l-pass">Contraseña</label>
+      <input id="l-pass" type="password" autocomplete="current-password">
+      <button class="btn" type="submit">Ingresar</button>
+    </form>
+
+    <form id="form-registro" class="oculto">
+      <label for="r-nombre">Nombre de tu empresa</label>
+      <input id="r-nombre" autocomplete="organization">
+      <label for="r-email">Correo</label>
+      <input id="r-email" type="email" autocomplete="email">
+      <label for="r-pass">Contraseña (mínimo 8 caracteres)</label>
+      <input id="r-pass" type="password" autocomplete="new-password">
+      <button class="btn" type="submit">Empezar 15 días gratis</button>
+      <p class="ayuda">Sin tarjeta. Al terminar la prueba, eliges un plan.</p>
+    </form>
+    <div id="msg-auth" class="msg"></div>
   </div>
 </section>
 
 <!-- Panel -->
-<div id="panel" class="hidden">
-  <header>
-    <div style="display:flex;align-items:center;gap:10px">
-      <img src="/logo.png" alt="ECOSEM Pucará-Morococha" style="height:44px;width:auto;background:#fff;border-radius:6px;padding:2px">
-      <h1>Panel de tareo</h1>
+<div id="panel" class="oculto">
+  <div class="top">
+    <div class="marca">
+      <img src="/logo.png" alt="ECOSEM">
+      <div>
+        <strong id="t-empresa">Mi empresa</strong>
+        <small id="t-plan">Prueba gratuita</small>
+      </div>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn verde" id="btn-excel">⬇ Descargar Excel</button>
-      <button class="btn gris" id="btn-actualizar">Actualizar</button>
-      <button class="btn gris" id="btn-salir">Salir</button>
-    </div>
-  </header>
+    <button class="btn-top" id="btn-salir">Cerrar sesión</button>
+  </div>
 
   <main>
-    <section class="card">
-      <h2>Registrar trabajador</h2>
-      <form id="form-trabajador" class="fila">
-        <input id="t-dni" inputmode="numeric" maxlength="8" placeholder="DNI (8 dígitos)">
-        <input id="t-nombre" placeholder="Nombre completo">
-        <button class="btn" type="submit">Agregar</button>
-      </form>
-      <div id="msg-trabajador" class="msg"></div>
-    </section>
-
-    <section class="card">
-      <h2>Trabajadores registrados <span id="total-trabajadores" style="color:var(--gris);font-weight:400"></span></h2>
-      <div class="scroll"><table><thead><tr><th>DNI</th><th>Nombre</th></tr></thead><tbody id="tabla-trabajadores"></tbody></table></div>
-    </section>
-
-    <section class="card">
-      <h2>Reportes recibidos <span id="total-reportes" style="color:var(--gris);font-weight:400"></span></h2>
-      <div class="scroll">
-        <table>
-          <thead><tr><th>Foto</th><th>Fecha trabajada</th><th>Trabajador</th><th>Horas</th><th>Actividad</th><th>Enviado</th></tr></thead>
-          <tbody id="tabla-reportes"></tbody>
-        </table>
+    <div class="grid">
+      <!-- Estado de la cuenta -->
+      <div id="estado" class="estado prueba">
+        <h2 id="estado-titulo"></h2>
+        <p id="estado-texto"></p>
+        <div class="barra"><span id="estado-barra" style="width:0%"></span></div>
       </div>
-      <p id="vacio-reportes" class="vacio hidden">Aún no hay reportes.</p>
-    </section>
+
+      <!-- Métricas -->
+      <div class="metricas">
+        <div class="metrica">
+          <small>Trabajadores</small>
+          <strong id="m-trabajadores">0</strong>
+          <span id="m-limite">de 25 disponibles</span>
+        </div>
+        <div class="metrica">
+          <small>Reportes este mes</small>
+          <strong id="m-reportes">0</strong>
+          <span>días con foto de sustento</span>
+        </div>
+        <div class="metrica">
+          <small>Horas este mes</small>
+          <strong id="m-horas">0</strong>
+          <span>horas reportadas</span>
+        </div>
+      </div>
+
+      <!-- Enlace para trabajadores -->
+      <section class="card c-6">
+        <h2>Enlace para tus trabajadores</h2>
+        <p class="sub">Compártelo por WhatsApp. Lo abren en su celular y lo agregan a su pantalla de inicio.</p>
+        <div class="enlace">
+          <input id="enlace" readonly>
+          <button class="btn sec" id="btn-copiar">Copiar</button>
+        </div>
+        <span class="codigo" id="codigo"></span>
+      </section>
+
+      <!-- Planes -->
+      <section class="card c-6" id="card-planes">
+        <h2>Planes</h2>
+        <p class="sub">Cuando termines la prueba, elige el plan que más se ajuste a tu empresa.</p>
+        <div class="planes" id="planes"></div>
+        <p class="nota">Para activar un plan, realiza el pago y confirma tu correo con el equipo. El plan se activa en el sistema y queda registrado en tu cuenta.</p>
+      </section>
+
+      <!-- Trabajadores -->
+      <section class="card">
+        <div class="cabecera-tabla">
+          <div>
+            <h2>Trabajadores</h2>
+            <p class="sub" style="margin:0">Regístralos con su DNI para que puedan reportar.</p>
+          </div>
+          <span class="badge" id="badge-trabajadores"></span>
+        </div>
+        <form id="form-trabajador" class="fila">
+          <div>
+            <label for="t-dni">DNI</label>
+            <input id="t-dni" inputmode="numeric" maxlength="8" placeholder="8 dígitos">
+          </div>
+          <div>
+            <label for="t-nombre">Nombre completo</label>
+            <input id="t-nombre" placeholder="Nombre y apellidos">
+          </div>
+          <button class="btn" id="btn-agregar" type="submit">Agregar</button>
+        </form>
+        <div id="msg-trabajador" class="msg"></div>
+        <div class="tabla-wrap" style="margin-top:8px">
+          <table>
+            <thead><tr><th>DNI</th><th>Nombre</th></tr></thead>
+            <tbody id="tabla-trabajadores"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Reportes -->
+      <section class="card">
+        <div class="cabecera-tabla">
+          <div>
+            <h2>Reportes recibidos</h2>
+            <p class="sub" style="margin:0">Toca una foto para verla completa.</p>
+          </div>
+          <button class="btn oscuro" id="btn-excel">⬇ Descargar Excel</button>
+        </div>
+        <div class="tabla-wrap">
+          <table>
+            <thead>
+              <tr><th>Foto</th><th>Día trabajado</th><th>Trabajador</th><th>Horas</th><th>Actividad</th><th>Enviado</th></tr>
+            </thead>
+            <tbody id="tabla-reportes"></tbody>
+          </table>
+        </div>
+        <p id="vacio-reportes" class="vacio oculto">Aún no hay reportes. Cuando tus trabajadores envíen su jornada, aparecerán aquí.</p>
+      </section>
+    </div>
   </main>
 </div>
 
-<div id="visor" onclick="this.classList.remove('abierto')"><img alt="Foto de sustento"></div>
+<div id="visor"><img alt="Foto de sustento"></div>
 
 <script>
   const $ = (id) => document.getElementById(id);
   const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fechaCorta = (f) => new Date(f + 'T12:00:00').toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' });
+  const fechaHora = (f) => new Date(f).toLocaleString('es-PE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+  const soles = (n) => 'S/ ' + n;
 
   async function api(url, opciones = {}) {
     const res = await fetch(url, {
-      ...opciones,
+      method: opciones.method || 'GET',
       headers: opciones.body ? { 'Content-Type': 'application/json' } : {},
       body: opciones.body ? JSON.stringify(opciones.body) : undefined,
     });
-    if (res.status === 401) { mostrarLogin(); throw new Error('Sesión expirada, ingresa de nuevo'); }
+    if (res.status === 401) { mostrarAuth(); throw new Error('Tu sesión expiró. Ingresa de nuevo.'); }
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || 'Error inesperado');
+    if (!res.ok) {
+      const err = new Error(data.error || 'Error inesperado');
+      err.status = res.status;
+      throw err;
+    }
     return data;
   }
 
-  function mostrarLogin() {
-    $('panel').classList.add('hidden');
-    $('login').classList.remove('hidden');
+  function mostrarAuth() {
+    $('panel').classList.add('oculto');
+    $('auth').classList.remove('oculto');
   }
 
   function mostrarPanel() {
-    $('login').classList.add('hidden');
-    $('panel').classList.remove('hidden');
+    $('auth').classList.add('oculto');
+    $('panel').classList.remove('oculto');
     cargarTodo();
   }
 
-  async function login() {
+  // ----- Acceso -----
+  function cambiarTab(a) {
+    $('tab-ingresar').classList.toggle('activa', a === 'ingresar');
+    $('tab-registro').classList.toggle('activa', a === 'registro');
+    $('form-ingresar').classList.toggle('oculto', a !== 'ingresar');
+    $('form-registro').classList.toggle('oculto', a !== 'registro');
+    $('msg-auth').textContent = '';
+  }
+
+  $('tab-ingresar').addEventListener('click', () => cambiarTab('ingresar'));
+  $('tab-registro').addEventListener('click', () => cambiarTab('registro'));
+
+  $('form-ingresar').addEventListener('submit', async (e) => {
+    e.preventDefault();
     try {
-      await api('/api/admin/login', { method: 'POST', body: { password: $('clave').value } });
-      $('clave').value = '';
+      await api('/api/empresas/login', { method: 'POST', body: { email: $('l-email').value, password: $('l-pass').value } });
+      $('l-pass').value = '';
       mostrarPanel();
     } catch (err) {
-      $('msg-login').textContent = err.message;
-      $('msg-login').className = 'msg error';
+      $('msg-auth').textContent = err.message; $('msg-auth').className = 'msg error';
     }
+  });
+
+  $('form-registro').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await api('/api/empresas/registro', {
+        method: 'POST',
+        body: { nombre: $('r-nombre').value, email: $('r-email').value, password: $('r-pass').value },
+      });
+      $('r-pass').value = '';
+      mostrarPanel();
+    } catch (err) {
+      $('msg-auth').textContent = err.message; $('msg-auth').className = 'msg error';
+    }
+  });
+
+  // ----- Panel -----
+  function pintarEstado(y) {
+    const caja = $('estado');
+    const dias = y.diasRestantes;
+    caja.className = 'estado ' + (y.estado === 'vencida' ? 'vencida' : y.estado === 'activa' ? 'activa' : 'prueba');
+
+    if (y.estado === 'prueba') {
+      $('estado-titulo').textContent = `Prueba gratuita: te quedan ${dias} ${dias === 1 ? 'día' : 'días'}`;
+      $('estado-texto').textContent = `Vence el ${fechaCorta(y.hasta.slice(0, 10))}. Puedes registrar trabajadores y reportes sin costo hasta esa fecha.`;
+      $('estado-barra').style.width = Math.max(0, 100 - (dias / 15) * 100) + '%';
+    } else if (y.estado === 'activa') {
+      $('estado-titulo').textContent = `Plan ${y.planNombre} activo`;
+      $('estado-texto').textContent = `Vigente hasta el ${fechaCorta(y.hasta.slice(0, 10))} (${dias} ${dias === 1 ? 'día' : 'días'} restantes).`;
+      $('estado-barra').style.width = Math.min(100, (dias / 30) * 100) + '%';
+    } else {
+      $('estado-titulo').textContent = 'Tu prueba venció';
+      $('estado-texto').textContent = 'Tus datos y el Excel siguen disponibles. Para volver a registrar reportes y trabajadores, elige un plan.';
+      $('estado-barra').style.width = '100%';
+    }
+
+    $('t-empresa').textContent = y.nombre;
+    $('t-plan').textContent = y.estado === 'prueba' ? 'Prueba gratuita' : y.planNombre;
+  }
+
+  function pintarPlanes(y) {
+    $('planes').innerHTML = y.planes.map((p) => {
+      const actual = y.estado === 'activa' && y.plan === p.id;
+      const destacado = p.id === 'pro';
+      return `
+        <div class="plan ${destacado ? 'destacado' : ''} ${actual ? 'actual' : ''}">
+          ${destacado ? '<span class="etiqueta">Más elegido</span>' : ''}
+          <h3>${esc(p.nombre)}${actual ? ' · activo' : ''}</h3>
+          <div class="precio">${soles(p.precio)} <small>/ mes</small></div>
+          <ul>
+            <li>${p.limite ? `Hasta ${p.limite} trabajadores` : 'Trabajadores ilimitados'}</li>
+            <li>Reportes con foto</li>
+            <li>Excel con fotos y resumen</li>
+          </ul>
+        </div>`;
+    }).join('');
   }
 
   async function cargarTodo() {
     try {
-      const [trabajadores, reportes] = await Promise.all([
-        api('/api/admin/trabajadores'),
-        api('/api/admin/reportes'),
+      const [y, trabajadores, reportes] = await Promise.all([
+        api('/api/empresas/yo'),
+        api('/api/empresas/trabajadores'),
+        api('/api/empresas/reportes'),
       ]);
 
-      $('total-trabajadores').textContent = `(${trabajadores.length})`;
-      $('tabla-trabajadores').innerHTML = trabajadores
-        .map((t) => `<tr><td>${esc(t.dni)}</td><td>${esc(t.nombre)}</td></tr>`).join('') ||
-        '<tr><td colspan="2" class="vacio">Sin trabajadores. Agrega el primero arriba.</td></tr>';
+      pintarEstado(y);
+      pintarPlanes(y);
 
-      $('total-reportes').textContent = `(${reportes.length})`;
-      $('vacio-reportes').classList.toggle('hidden', reportes.length > 0);
+      // Enlace y código para los trabajadores
+      const enlace = `${location.origin}/?e=${y.codigo}`;
+      $('enlace').value = enlace;
+      $('codigo').textContent = 'Código: ' + y.codigo;
+
+      // Métricas
+      $('m-trabajadores').textContent = trabajadores.length;
+      $('m-limite').textContent = y.limite ? `de ${y.limite} disponibles` : 'ilimitados';
+      $('badge-trabajadores').textContent = y.limite ? `${trabajadores.length} / ${y.limite}` : `${trabajadores.length} registrados`;
+      $('m-reportes').textContent = y.reportesMes;
+      $('m-horas').textContent = Number(y.horasMes).toLocaleString('es-PE', { maximumFractionDigits: 1 });
+
+      // Bloqueo de registro si la prueba venció
+      const bloqueado = y.estado === 'vencida';
+      $('btn-agregar').disabled = bloqueado;
+
+      // Trabajadores
+      $('tabla-trabajadores').innerHTML = trabajadores.length
+        ? trabajadores.map((t) => `<tr><td>${esc(t.dni)}</td><td>${esc(t.nombre)}</td></tr>`).join('')
+        : '<tr><td colspan="2" class="vacio">Aún no tienes trabajadores. Agrega el primero arriba.</td></tr>';
+
+      // Reportes
+      $('vacio-reportes').classList.toggle('oculto', reportes.length > 0);
       $('tabla-reportes').innerHTML = reportes.map((r) => `
         <tr>
-          <td><img class="thumb" src="/api/admin/foto/${r.id}" data-id="${r.id}" alt="Foto"></td>
-          <td>${esc(r.fecha)}</td>
-          <td>${esc(r.nombre)}<br><small style="color:var(--gris)">${esc(r.dni)}</small></td>
+          <td><img class="thumb" src="/api/empresas/foto/${r.id}" data-id="${r.id}" alt="Foto"></td>
+          <td>${esc(fechaCorta(r.fecha))}</td>
+          <td><strong>${esc(r.nombre)}</strong><br><small style="color:var(--gris)">${esc(r.dni)}</small></td>
           <td>${esc(r.horas)}</td>
           <td class="act">${esc(r.actividad)}</td>
-          <td>${new Date(r.enviado).toLocaleString('es-PE')}</td>
+          <td>${esc(fechaHora(r.enviado))}</td>
         </tr>`).join('');
     } catch (err) {
-      if (err.message !== 'Sesión expirada, ingresa de nuevo') alert(err.message);
+      if (!/expiró/.test(err.message)) alert(err.message);
     }
   }
 
-  async function agregarTrabajador(e) {
+  $('form-trabajador').addEventListener('submit', async (e) => {
     e.preventDefault();
     try {
-      await api('/api/admin/trabajadores', {
+      await api('/api/empresas/trabajadores', {
         method: 'POST',
         body: { dni: $('t-dni').value.trim(), nombre: $('t-nombre').value.trim() },
       });
-      $('msg-trabajador').textContent = 'Trabajador registrado';
+      $('msg-trabajador').textContent = 'Trabajador registrado ✔';
       $('msg-trabajador').className = 'msg exito';
       $('t-dni').value = '';
       $('t-nombre').value = '';
@@ -177,30 +446,35 @@
       $('msg-trabajador').textContent = err.message;
       $('msg-trabajador').className = 'msg error';
     }
-  }
+  });
 
-  async function salir() {
-    await fetch('/api/admin/logout', { method: 'POST' });
-    mostrarLogin();
-  }
+  $('btn-copiar').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText($('enlace').value);
+      $('btn-copiar').textContent = '¡Copiado!';
+    } catch {
+      $('enlace').select();
+    }
+    setTimeout(() => ($('btn-copiar').textContent = 'Copiar'), 1800);
+  });
 
-  $('btn-login').addEventListener('click', login);
-  $('clave').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
-  $('form-trabajador').addEventListener('submit', agregarTrabajador);
-  $('btn-actualizar').addEventListener('click', cargarTodo);
-  $('btn-salir').addEventListener('click', salir);
-  $('btn-excel').addEventListener('click', () => { location.href = '/api/admin/excel'; });
+  $('btn-excel').addEventListener('click', () => { location.href = '/api/empresas/excel'; });
 
-  // Clic en una miniatura: ver la foto completa
+  $('btn-salir').addEventListener('click', async () => {
+    await fetch('/api/empresas/logout', { method: 'POST' });
+    mostrarAuth();
+  });
+
   $('tabla-reportes').addEventListener('click', (e) => {
     const img = e.target.closest('img.thumb');
     if (!img) return;
-    $('visor').querySelector('img').src = `/api/admin/foto/${img.dataset.id}`;
+    $('visor').querySelector('img').src = `/api/empresas/foto/${img.dataset.id}`;
     $('visor').classList.add('abierto');
   });
+  $('visor').addEventListener('click', () => $('visor').classList.remove('abierto'));
 
-  // Al abrir la página: ¿ya hay sesión de administrador?
-  fetch('/api/admin/sesion').then((r) => r.json()).then((d) => (d.autenticado ? mostrarPanel() : mostrarLogin()));
+  // Al abrir la página: ¿ya hay sesión?
+  api('/api/empresas/yo').then(mostrarPanel).catch(mostrarAuth);
 </script>
 </body>
 </html>
