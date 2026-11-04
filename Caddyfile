@@ -1,5 +1,5 @@
-# Cambia tudominio.pe por tu dominio. Caddy obtiene el certificado HTTPS solo.
-tudominio.pe {
+# Dominio: tareodigital.pe. Caddy obtiene el certificado HTTPS solo.
+tareodigital.pe {
     encode gzip
     reverse_proxy app:3000
 }
