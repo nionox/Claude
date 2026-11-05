@@ -17,9 +17,9 @@ const MSG_VENCIDA = 'La prueba o la suscripción de esta empresa venció. Renuev
 
 // Planes mensuales en soles. Cambia aquí los precios y límites.
 const PLANES = {
-  basico: { nombre: 'Básico', precio: 49, limite: 25 },
-  pro: { nombre: 'Pro', precio: 99, limite: 100 },
-  ilimitado: { nombre: 'Ilimitado', precio: 179, limite: Infinity },
+  basico: { nombre: 'Básico', precio: 59, limite: 25 },
+  pro: { nombre: 'Pro', precio: 119, limite: 100 },
+  ilimitado: { nombre: 'Ilimitado', precio: 199, limite: Infinity },
 };
 
 if (!SUPERADMIN_PASSWORD) {

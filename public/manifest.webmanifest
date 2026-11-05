@@ -1,13 +1,13 @@
 {
-  "name": "Reporte de jornada ECOSEM",
-  "short_name": "ECOSEM",
+  "name": "Tareo Digital",
+  "short_name": "Tareo",
   "description": "Reporta tu jornada con foto de sustento",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f1f5f9",
-  "theme_color": "#1d4ed8",
+  "background_color": "#f3f6f8",
+  "theme_color": "#0b1f2a",
   "lang": "es",
   "icons": [
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
