@@ -1,5 +1,5 @@
-# Dominio: tareodigital.pe. Caddy obtiene el certificado HTTPS solo.
-tareodigital.pe {
+# Dominio: tareodigital.org.pe. Caddy obtiene el certificado HTTPS solo.
+tareodigital.org.pe {
     encode gzip
     reverse_proxy app:3000
 }
