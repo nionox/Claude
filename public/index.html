@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Tareo Digital</title>
-  <meta name="theme-color" content="#0b1f2a">
+  <meta name="theme-color" content="#0b1b3a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,10 +14,10 @@
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <style>
     :root {
-      --ink: #0b1f2a;
-      --primary: #0d9488;
-      --primary-dark: #0f766e;
-      --primary-soft: #ccfbf1;
+      --ink: #0b1b3a;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-soft: #dbeafe;
       --accent: #f59e0b;
       --bg: #f3f6f8;
       --text: #0f172a;
@@ -35,8 +35,8 @@
       color: var(--text);
       min-height: 100vh;
       background:
-        radial-gradient(900px 340px at 85% -80px, rgba(20,184,166,.35), transparent 70%),
-        linear-gradient(180deg, var(--ink) 0, #134e4a 300px, var(--bg) 300px);
+        radial-gradient(900px 340px at 85% -80px, rgba(59,130,246,.38), transparent 70%),
+        linear-gradient(180deg, var(--ink) 0, #1e3a8a 300px, var(--bg) 300px);
       background-attachment: fixed;
       -webkit-font-smoothing: antialiased;
     }
@@ -45,7 +45,7 @@
     .marca { text-align: center; color: #fff; padding-top: 6px; }
     .marca .logo { width: 76px; height: 76px; border-radius: 22px; box-shadow: 0 12px 30px rgba(0,0,0,.35); }
     .marca h1 { margin: 14px 0 2px; font-size: 1.55rem; letter-spacing: -.02em; }
-    .marca p { margin: 0; font-size: .95rem; color: #b6e6df; }
+    .marca p { margin: 0; font-size: .95rem; color: #bfd3f7; }
 
     .card {
       background: #fff; border-radius: var(--radius); padding: 22px;
@@ -61,13 +61,13 @@
       border: 1.5px solid var(--border); border-radius: 14px; background: #f9fbfc; color: var(--text);
       transition: border-color .15s, box-shadow .15s, background .15s;
     }
-    input:focus, textarea:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(13,148,136,.16); }
+    input:focus, textarea:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(37,99,235,.18); }
 
     .btn {
       width: 100%; margin-top: 20px; padding: 16px; font: inherit; font-weight: 800; font-size: 1.02rem;
       color: #fff; background: linear-gradient(135deg, var(--primary), var(--primary-dark));
       border: 0; border-radius: 16px; cursor: pointer; letter-spacing: .01em;
-      box-shadow: 0 10px 22px rgba(13,148,136,.35);
+      box-shadow: 0 10px 22px rgba(37,99,235,.38);
     }
     .btn:active { transform: translateY(1px); }
     .btn:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; color: #f1f5f9; }
@@ -89,8 +89,8 @@
     .sello { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 4px; }
     .sello span { background: #f1f5f9; border-radius: 12px; padding: 9px 13px; font-size: .88rem; }
 
-    .foto-box { border: 2px dashed #a7d8d2; border-radius: 18px; padding: 18px; text-align: center; background: #f4fbfa; }
-    .foto-box.ok { border-style: solid; border-color: var(--primary); background: var(--ok-soft); }
+    .foto-box { border: 2px dashed #bcd0f7; border-radius: 18px; padding: 18px; text-align: center; background: #f3f7ff; }
+    .foto-box.ok { border-style: solid; border-color: var(--primary); background: #eff6ff; }
     .foto-box img { display: none; max-width: 100%; max-height: 260px; border-radius: 14px; margin: 14px auto 0; }
     .aviso-foto { font-size: .85rem; color: var(--muted); margin: 10px 0 0; }
     .instalar { font-size: .88rem; color: var(--muted); line-height: 1.6; }

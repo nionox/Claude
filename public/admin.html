@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Panel de empresa · Tareo Digital</title>
-  <meta name="theme-color" content="#0b1f2a">
+  <meta name="theme-color" content="#0b1b3a">
   <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
   <style>
     :root {
-      --ink: #0b1f2a; --primary: #0d9488; --primary-dark: #0f766e; --primary-soft: #ccfbf1;
+      --ink: #0b1b3a; --primary: #2563eb; --primary-dark: #1d4ed8; --primary-soft: #dbeafe;
       --accent: #f59e0b; --bg: #f3f6f8; --text: #0f172a; --muted: #64748b; --border: #e3eaee;
       --danger: #dc2626; --danger-soft: #fef2f2; --ok-soft: #ecfdf5; --radius: 18px;
       --shadow: 0 6px 24px rgba(11,31,42,.07);
@@ -20,13 +20,13 @@
 
     /* Barra superior */
     .top {
-      background: linear-gradient(100deg, var(--ink), #134e4a);
+      background: linear-gradient(100deg, var(--ink), #1e3a8a);
       color: #fff; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
     }
     .marca { display: flex; align-items: center; gap: 12px; }
     .marca img { width: 42px; height: 42px; border-radius: 12px; }
     .marca strong { display: block; font-size: 1.02rem; letter-spacing: -.01em; }
-    .marca small { color: #9fd8d1; }
+    .marca small { color: #a9c4f5; }
     .acciones { display: flex; gap: 8px; flex-wrap: wrap; }
     .btn-top { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.22); border-radius: 12px; padding: 9px 16px; cursor: pointer; font-weight: 700; }
     .btn-top:hover { background: rgba(255,255,255,.18); }
@@ -40,8 +40,8 @@
 
     /* Estado de la cuenta */
     .estado { border-radius: var(--radius); padding: 22px 24px; color: #fff; grid-column: span 12; box-shadow: var(--shadow); }
-    .estado.prueba { background: linear-gradient(100deg, #3730a3, #6366f1); }
-    .estado.activa { background: linear-gradient(100deg, #0f766e, #14b8a6); }
+    .estado.prueba { background: linear-gradient(100deg, #1d4ed8, #3b82f6); }
+    .estado.activa { background: linear-gradient(100deg, #047857, #10b981); }
     .estado.vencida { background: linear-gradient(100deg, #991b1b, #ef4444); }
     .estado h2 { color: #fff; margin: 0 0 4px; font-size: 1.15rem; }
     .estado p { margin: 0; opacity: .92; font-size: .93rem; }
@@ -51,7 +51,7 @@
     /* Métricas */
     .metricas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; grid-column: span 12; }
     .metrica { background: #fff; border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); border: 1px solid var(--border); position: relative; overflow: hidden; }
-    .metrica::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: linear-gradient(180deg, var(--primary), #14b8a6); }
+    .metrica::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: linear-gradient(180deg, var(--primary), #3b82f6); }
     .metrica small { color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: .7rem; letter-spacing: .06em; }
     .metrica strong { display: block; font-size: 2rem; margin-top: 4px; color: var(--ink); letter-spacing: -.02em; }
     .metrica span { color: var(--muted); font-size: .84rem; }
@@ -60,8 +60,8 @@
     /* Formularios */
     label { display: block; font-weight: 700; font-size: .84rem; margin: 12px 0 6px; color: #1e293b; }
     input { width: 100%; font: inherit; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 12px; background: #f9fbfc; transition: border-color .15s, box-shadow .15s; }
-    input:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(13,148,136,.15); }
-    .btn { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border: 0; border-radius: 12px; padding: 12px 18px; font-weight: 800; cursor: pointer; white-space: nowrap; box-shadow: 0 6px 14px rgba(13,148,136,.28); }
+    input:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(37,99,235,.17); }
+    .btn { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border: 0; border-radius: 12px; padding: 12px 18px; font-weight: 800; cursor: pointer; white-space: nowrap; box-shadow: 0 6px 14px rgba(37,99,235,.3); }
     .btn:hover { filter: brightness(1.05); }
     .btn:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; }
     .btn.sec { background: var(--primary-soft); color: var(--primary-dark); box-shadow: none; }
@@ -87,7 +87,7 @@
     .precio { font-size: 1.85rem; font-weight: 800; margin: 8px 0 2px; color: var(--ink); letter-spacing: -.02em; white-space: nowrap; }
     .precio small { font-size: .82rem; color: var(--muted); font-weight: 600; letter-spacing: 0; }
     .plan ul { padding-left: 18px; margin: 12px 0 0; color: var(--muted); font-size: .9rem; flex: 1; line-height: 1.6; }
-    .plan.actual { background: #f4fbfa; }
+    .plan.actual { background: #f3f7ff; }
     .nota { color: var(--muted); font-size: .85rem; margin: 14px 0 0; line-height: 1.4; }
 
     /* Tablas */
@@ -95,7 +95,7 @@
     table { width: 100%; border-collapse: collapse; font-size: .9rem; }
     th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
     th { color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; }
-    tbody tr:hover { background: #f8fbfb; }
+    tbody tr:hover { background: #f6f9ff; }
     td.act { max-width: 320px; }
     img.thumb { width: 64px; height: 64px; object-fit: cover; border-radius: 50%; cursor: pointer; border: 3px solid var(--primary-soft); }
     .vacio { color: var(--muted); text-align: center; padding: 26px 0; }
@@ -103,9 +103,9 @@
     .badge { display: inline-block; font-size: .74rem; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: var(--primary-soft); color: var(--primary-dark); }
 
     /* Acceso */
-    .auth { min-height: 100vh; display: grid; place-items: center; padding: 20px; background: radial-gradient(800px 400px at 80% -50px, rgba(20,184,166,.4), transparent 70%), linear-gradient(160deg, var(--ink), #134e4a); }
+    .auth { min-height: 100vh; display: grid; place-items: center; padding: 20px; background: radial-gradient(800px 400px at 80% -50px, rgba(59,130,246,.42), transparent 70%), linear-gradient(160deg, var(--ink), #1e3a8a); }
     .auth-card { background: #fff; border-radius: 24px; padding: 30px 28px; width: 100%; max-width: 410px; box-shadow: 0 24px 60px rgba(0,0,0,.35); }
-    .auth-card .logo { display: block; width: 68px; height: 68px; margin: 0 auto 10px; border-radius: 20px; box-shadow: 0 10px 24px rgba(13,148,136,.4); }
+    .auth-card .logo { display: block; width: 68px; height: 68px; margin: 0 auto 10px; border-radius: 20px; box-shadow: 0 10px 24px rgba(37,99,235,.42); }
     .auth-card h1 { text-align: center; font-size: 1.4rem; margin: 6px 0 2px; letter-spacing: -.02em; }
     .auth-card .lema { text-align: center; color: var(--muted); font-size: .92rem; margin: 0 0 8px; }
     .tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg); border-radius: 14px; padding: 4px; margin: 14px 0 6px; }
