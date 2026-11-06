@@ -1,5 +1,6 @@
-# Dominio: tareodigital.org.pe. Caddy obtiene el certificado HTTPS solo.
-tareodigital.org.pe {
+# Direcciones de la app. Caddy obtiene el certificado HTTPS solo, para cada una.
+# La de sslip.io apunta a la IP del servidor y funciona sin esperar al DNS del dominio propio.
+tareodigital.org.pe, 107-170-74-9.sslip.io {
     encode gzip
     reverse_proxy app:3000
 }
